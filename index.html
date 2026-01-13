@@ -47,6 +47,34 @@
             opacity: 0.9;
         }
 
+        .search-container {
+            padding: 20px 30px;
+            background: #f0f4f8;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 1em;
+            border: 2px solid #2a5298;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            border-color: #1e3c72;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        .search-results {
+            padding: 0 30px;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
         .content {
             padding: 30px;
         }
@@ -57,6 +85,10 @@
             background: #f8f9fa;
             border-radius: 10px;
             border-left: 4px solid #2a5298;
+        }
+
+        .section.hidden {
+            display: none;
         }
 
         .section h2 {
@@ -114,6 +146,12 @@
         .copy-btn:active {
             transform: translateY(0);
         }
+
+        .highlight {
+            background-color: #fff59d;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
     </style>
 </head>
 
@@ -122,6 +160,12 @@
         <div class="header">
             <h1>SUJANSIR: 7407290901</h1>
             <p>School Teacher</p>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-box" id="searchInput"
+                placeholder="🔍 Search for prompts... (e.g., 'bengali', 'print', 'question', 'summary')">
+            <div class="search-results" id="searchResults"></div>
         </div>
 
         <div class="content">
@@ -231,7 +275,7 @@
 
                         Next, provide a complete, elaborate summary of the same data, keeping as close as possible to
                         the original lines but rewriting in very simple, clear terminology (without point-wise) for
-                        class based ICSE‑board–level Exam
+                        class based ICSE‑board—level Exam
 
                         Make sure both the word list and the summary are accurate, clear, and suitable for class based
                         ICSE student.</div>
@@ -414,8 +458,7 @@
                     <div class="prompt-box">Please study above data carefully, thoroughly, and correctly
                         Then make proper practice set correctly for each chapter from my shared data
                         Please give total 100 important questions like each exercise and example section's question from
-                        my
-                        shared data For class Based ICSE board level exam</div>
+                        my shared data For class Based ICSE board level exam</div>
                 </div>
             </div>
 
@@ -479,7 +522,7 @@
                 <h2>🇧🇩 বাংলা প্রশ্ন সেট তৈরির জন্য নির্দেশিকা</h2>
                 <div class="prompt-wrapper">
                     <button class="copy-btn">Copy</button>
-                    <div class="prompt-box bengali">অনুগ্রহ করে উপরে দেওয়া তথ্যগুলো যত্ন সহকারে, পুঙ্খানুপুঙ্খভাবে এবং
+                    <div class="prompt-box bengali">অনুগ্রহ করে উপরে দেওয়া তথ্যগুলো যত্ন সহকারে, পুঙ্খানুপুঙ্খভাবে এবং
                         নির্ভুলতার সাথে পর্যালোচনা করুন। এরপর, শেয়ার করা তথ্যগুলোর উপর ভিত্তি করে অনুশীলনের মতো প্রতিটি
                         ৪০ নম্বর প্রশ্নের 2 টি প্রশ্ন সেট পাঠান এবং সঠিকভাবে অনুশীলন করুন।
                         অনুগ্রহ করে শুধুমাত্র আমার শেয়ার করা তথ্যগুলো থেকে গুরুত্বপূর্ণ প্রশ্ন দিন, ক্লাস ভিত্তিক ICSE
@@ -505,7 +548,7 @@
                 <div class="prompt-wrapper">
                     <button class="copy-btn">Copy</button>
                     <div class="prompt-box">Please study the data provided above carefully, correctly and thoroughly.
-                        Then, create a well-structured question paper for 40 marks based on the data I previously
+                        Then, create a well-structured question paper for 50 marks based on the data I previously
                         shared. Ensure that the questions are important and evenly distributed from all chapters without
                         mentioning chapter names. The questions should be shuffled and divided equally across different
                         sections, maintaining the Class Based ICSE board level exam. Format the paper properly with
@@ -519,7 +562,7 @@
                 <div class="prompt-wrapper">
                     <button class="copy-btn">Copy</button>
                     <div class="prompt-box">Please study the data provided above carefully, correctly and thoroughly.
-                        Then, create a well-structured question paper for 40 marks based on the data I previously
+                        Then, create a well-structured question paper for 50 marks based on the data I previously
                         shared. Ensure that the questions are important and evenly distributed from all chapters without
                         mentioning chapter names. The questions should be shuffled and divided equally across different
                         sections, maintaining the Class Based ICSE board level exam. Format the paper properly with
@@ -586,7 +629,11 @@
         // Add click event listeners to all copy buttons
         document.addEventListener('DOMContentLoaded', function () {
             const copyButtons = document.querySelectorAll('.copy-btn');
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            const sections = document.querySelectorAll('.section');
 
+            // Copy button functionality
             copyButtons.forEach(button => {
                 button.addEventListener('click', function () {
                     const promptBox = this.nextElementSibling;
@@ -609,6 +656,39 @@
                         }, 2000);
                     });
                 });
+            });
+
+            // Search functionality
+            searchInput.addEventListener('input', function () {
+                const searchTerm = this.value.toLowerCase().trim();
+                let visibleCount = 0;
+
+                sections.forEach(section => {
+                    const heading = section.querySelector('h2').textContent.toLowerCase();
+                    const content = section.textContent.toLowerCase();
+
+                    if (searchTerm === '' || heading.includes(searchTerm) || content.includes(searchTerm)) {
+                        section.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                });
+
+                // Update search results message
+                if (searchTerm === '') {
+                    searchResults.textContent = '';
+                } else {
+                    searchResults.textContent = `Found ${visibleCount} section${visibleCount !== 1 ? 's' : ''} matching "${searchTerm}"`;
+                }
+            });
+
+            // Clear search on Escape key
+            searchInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    this.value = '';
+                    this.dispatchEvent(new Event('input'));
+                }
             });
         });
     </script>
